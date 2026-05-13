@@ -16,7 +16,8 @@ const paymentSchema = new mongoose.Schema({
   currency:      { type: String, default: 'ETB' },
   paymentMethod: { type: String, enum: ['Telebirr', 'CBE Birr', 'Bank Transfer', 'Card'], required: true },
   status:        { type: String, enum: ['pending', 'paid', 'failed', 'refunded'], default: 'pending' },
-  transactionId: { type: String, unique: true, sparse: true },
+  transactionId: { type: String, sparse: true },
+  chapaRef:      { type: String, unique: true, sparse: true },
   description:   { type: String, default: null },
   paymentDetails:{ type: mongoose.Schema.Types.Mixed, default: null },
 

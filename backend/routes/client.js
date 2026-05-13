@@ -98,7 +98,6 @@ router.delete('/appointments/:id', AppointmentController.cancelAppointment);
 
 // Payments
 router.get('/payments', PaymentController.getPayments);
-router.post('/payments', PaymentController.createPayment);
 router.get('/payments/:id', PaymentController.getPaymentById);
 
 // Assessments — AI-powered scoring & therapist matching

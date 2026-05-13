@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, CheckCircle } from 'lucide-react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { clientSidebarItems } from '../../components/client/clientNav';
-import { publicAPI } from '../../api';
+import { publicAPI, clientAPI } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 
 const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM'];
@@ -33,10 +33,35 @@ export default function BookingPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handleProceed = () => {
-    navigate('/client/payment/checkout', {
-      state: { therapistId: id, date: selectedDate, time: selectedTime, therapist }
-    });
+  const [booking, setBooking] = useState(false);
+
+  const handleProceed = async () => {
+    setBooking(true);
+    try {
+      const res = await clientAPI.createAppointment({
+        therapistId: id,
+        date: selectedDate,
+        time: selectedTime,
+        sessionType: 'video',
+      });
+      const appointment = res.data?.appointment || res.data;
+      const appointmentId = appointment._id || appointment.id;
+      if (!appointmentId) throw new Error('No appointment ID returned');
+      navigate('/client/payment/checkout', {
+        state: {
+          appointmentId,
+          therapistName: name,
+          specialization: (therapist.specialization || []).join(', '),
+          amount: rate,
+          date: selectedDate,
+          time: selectedTime,
+        }
+      });
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Failed to create appointment');
+    } finally {
+      setBooking(false);
+    }
   };
 
   if (loading) {
@@ -113,9 +138,11 @@ export default function BookingPage() {
                 <span className="font-bold text-primary">ETB {rate}</span>
               </div>
             </div>
-            <button onClick={handleProceed}
-              className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2">
-              <CheckCircle size={16} /> Proceed to Payment
+            <button onClick={handleProceed} disabled={booking}
+              className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2 disabled:opacity-50">
+              {booking
+                ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Creating booking...</>
+                : <><CheckCircle size={16} /> Proceed to Payment</>}
             </button>
           </div>
         )}

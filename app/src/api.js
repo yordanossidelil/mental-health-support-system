@@ -43,9 +43,10 @@ export const clientAPI = {
   cancelAppointment: (id) => api.delete(`/client/appointments/${id}`),
 
   // Payments
-  getPayments: () => api.get('/client/payments'),
-  createPayment: (data) => api.post('/client/payments', data),
-  getPaymentById: (id) => api.get(`/client/payments/${id}`),
+  getPayments: () => api.get('/payments'),
+  getPaymentById: (id) => api.get(`/payments/${id}`),
+  initializePayment: (data) => api.post('/payments/initialize', data),
+  verifyPayment: (txRef) => api.get(`/payments/verify/${txRef}`),
 
   // Assessments
   submitAssessment: (data) => api.post('/client/assessment', data),

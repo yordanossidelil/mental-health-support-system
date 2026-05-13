@@ -42,7 +42,7 @@ class AppointmentController {
 
       // Check if therapist exists and is verified
       const therapist = await Therapist.findOne({
-        userId: therapistId,
+        _id: therapistId,
         'verification.status': 'VERIFIED'
       });
 
@@ -52,7 +52,7 @@ class AppointmentController {
 
       // Check for conflicting appointments
       const conflictingAppointment = await Appointment.findOne({
-        therapistId,
+        therapistId: therapist._id,
         date,
         time,
         status: { $in: ['pending', 'confirmed'] }
@@ -65,7 +65,7 @@ class AppointmentController {
       // Create appointment
       const appointment = new Appointment({
         clientId: req.user._id,
-        therapistId,
+        therapistId: therapist._id,
         date,
         time,
         sessionType,
